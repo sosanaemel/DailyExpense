@@ -16,6 +16,7 @@ $widget_row = mysqli_fetch_assoc($widget_res);
 $current_budget = $widget_row ? intval($widget_row['value']) : 0;
 
 // Prevent adding expenses if budget is finished
+// Prevent adding expenses if budget is finished
 if(isset($_POST['input_submit'])){
     if($current_budget <= 0){
         echo "<script>alert('⚠️ Budget finished. Please add a new budget!');</script>";
@@ -23,6 +24,7 @@ if(isset($_POST['input_submit'])){
         exit();
     }
 }
+
 
 // AJAX SAVE BUDGET
 if(!empty($_POST)){
@@ -33,7 +35,6 @@ if(!empty($_POST)){
         exit();
     }
 }
-
 
 
 if(isset($_POST['input_submit'])){
@@ -54,6 +55,7 @@ if(isset($_POST['input_submit'])){
     header("Location: home.php");
     exit();
 }
+
 
 ?>
 
@@ -241,7 +243,6 @@ if(isset($_POST['input_submit'])){
     ">
         <form method="POST" class="header-bar">
             <input type="text" name="text_input" id="textInput" placeholder="Type or speak something..." style="width:86%; font-family: cursive;">
-            <button type="button" id="voiceBtn" style="background-color:#212529;">🎤</button>
             <button type="submit" name="input_submit" style="font-family: cursive; background-color:#212529;">Submit</button>
         </form>
     </div>
@@ -250,6 +251,7 @@ if(isset($_POST['input_submit'])){
 <div id="budgetZeroMsg" style="display:none; color:#ffcccc; font-size:14px; margin-top:5px;">
     ⚠️ Budget finished. Please add a new budget!
 </div>
+
 
 <script src="home.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
