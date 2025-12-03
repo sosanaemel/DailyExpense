@@ -10,27 +10,51 @@ if(!isset($_SESSION['user_id'])){
 $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['user_name'];
 
-// AJAX حفظ البادجت بدون Reload
-if(isset($_POST['widget_submit'])){
-    $widget_val = $_POST['widget_value'];
-    mysqli_query($conn, "INSERT INTO widgets (user_id,value) VALUES ('$user_id','$widget_val')");
-    exit(); 
+// Get last budget value
+$widget_res = mysqli_query($conn, "SELECT value FROM widgets WHERE user_id='$user_id' ORDER BY created_at DESC LIMIT 1");
+$widget_row = mysqli_fetch_assoc($widget_res);
+$current_budget = $widget_row ? intval($widget_row['value']) : 0;
+
+// Prevent adding expenses if budget is finished
+if(isset($_POST['input_submit'])){
+    if($current_budget <= 0){
+        echo "<script>alert('⚠️ Budget finished. Please add a new budget!');</script>";
+        header("Refresh:0; url=home.php");
+        exit();
+    }
 }
 
-// حفظ الشريط السفلي
+// AJAX SAVE BUDGET
+if(!empty($_POST)){
+    if(isset($_POST['widget_submit'])){
+        $widget_val = $_POST['widget_value'];
+        mysqli_query($conn, "INSERT INTO widgets (user_id, value) VALUES ('$user_id', '$widget_val')");
+        echo "OK";
+        exit();
+    }
+}
+
+
+
 if(isset($_POST['input_submit'])){
     $content = $_POST['text_input'];
+
+    // extract money from input (first number only)
+    $parts = explode(" ", $content, 2);
+    $amount = intval($parts[0]);
+
+    // reduce budget
+    $new_budget = $current_budget - $amount;
+
+    mysqli_query($conn, "INSERT INTO widgets (user_id,value) VALUES ('$user_id','$new_budget')");
+
+    // save expense
     mysqli_query($conn, "INSERT INTO inputs (user_id, content) VALUES ('$user_id','$content')");
+
     header("Location: home.php");
     exit();
 }
 
-// Logout
-if(isset($_POST['logout'])){
-    session_destroy();
-    header("Location: login_signup.php");
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -198,9 +222,10 @@ if(isset($_POST['logout'])){
             <button type="button" id="widgetSave" class="btn btn-dark btn-sm" style="font-family: cursive; margin-left:5px;">
                 Save
             </button>
-            <div id="moneyForm" style="display:none; color:green; margin-top:5px;">
+            <div id="widgetMsg" style="display:none; color:lightgreen; margin-top:10px;">
     Saved successfully!
 </div>
+
 
         </form>
     </div>
@@ -222,7 +247,14 @@ if(isset($_POST['logout'])){
     </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div id="budgetZeroMsg" style="display:none; color:#ffcccc; font-size:14px; margin-top:5px;">
+    ⚠️ Budget finished. Please add a new budget!
+</div>
+
 <script src="home.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
 </body>
 </html>
