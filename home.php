@@ -27,14 +27,14 @@ if(isset($_POST['input_submit'])){
 
 
 // AJAX SAVE BUDGET
-if(!empty($_POST)){
-    if(isset($_POST['widget_submit'])){
-        $widget_val = $_POST['widget_value'];
-        mysqli_query($conn, "INSERT INTO widgets (user_id, value) VALUES ('$user_id', '$widget_val')");
-        echo "OK";
-        exit();
-    }
+
+if(isset($_POST['widget_submit'])){
+    $widget_val = intval($_POST['widget_value']);
+    mysqli_query($conn, "INSERT INTO widgets (user_id, value) VALUES ('$user_id', '$widget_val')");
+    echo "OK";
+    exit();
 }
+
 
 
 if(isset($_POST['input_submit'])){
@@ -56,13 +56,26 @@ if(isset($_POST['input_submit'])){
     exit();
 }
 
+if (isset($_POST['logout'])) {
+    session_unset();      // يمسح بيانات السيشن
+    session_destroy();    // يقفل السيشن
+    header("Location: login_signup.php");
+    exit();
+}
+
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
+<script>
+    const currentBudget = <?php echo $current_budget; ?>;
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Home</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -243,7 +256,7 @@ if(isset($_POST['input_submit'])){
     ">
         <form method="POST" class="header-bar">
             <input type="text" name="text_input" id="textInput" placeholder="Type or speak something..." style="width:86%; font-family: cursive;">
-            <button type="submit" name="input_submit" style="font-family: cursive; background-color:#212529;">Submit</button>
+            <button type="submit" name="input_submit" id="submitBtn" style="font-family: cursive; background-color:#212529;">Submit</button>
         </form>
     </div>
 </section>
@@ -253,10 +266,10 @@ if(isset($_POST['input_submit'])){
 </div>
 
 
-<script src="home.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
+<script src="home.js" defer></script>
 
 </body>
 </html>
